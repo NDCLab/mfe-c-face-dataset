@@ -17,7 +17,7 @@ library(effsize)
 
 # Loading mfe_c_face data
 
-proje_wd <- "/Users/kihossei/Documents/GitHub/mfe_c_face"
+proje_wd <- "/Users/kihossei/Google Drive/My Drive/My Digital Life/Professional/GitHub_Repos/mfe-c-face-dataset"
 setwd(proje_wd)
 
 processed_file_input <- paste(proje_wd, "derivatives", "psychopy", "stat_output", sep ="/", collapse = NULL) # input data directory
@@ -51,7 +51,7 @@ face_df$group <- 'face' # adding a column that specifies the group (will be need
 
 #Working directory should be the Psychopy experiment directory.
 
-proje_wd <- "/Users/kihossei/Documents/GitHub/mfe_c_object"
+proje_wd <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/GitHub_Repos/mfe-c-object-dataset"
 setwd(proje_wd)
 
 processed_file_input <- paste(proje_wd, "derivatives", "psychopy", "stat_output", sep ="/", collapse = NULL) # input data directory

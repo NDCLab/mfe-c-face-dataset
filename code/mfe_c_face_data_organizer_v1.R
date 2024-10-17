@@ -8,11 +8,11 @@ library(dplyr)
 library(stringr)
 
 #Working directory should be the Psychopy experiment directory.
-proje_wd <- "/Users/kihossei/Documents/GitHub/mfe_c_face"
+proje_wd <- "/Users/kihossei/Google Drive/My Drive/My Digital Life/Professional/GitHub_Repos/mfe-c-face-dataset"
 setwd(proje_wd)
 
 # Defining the input and output folders.
-input_path <- paste(proje_wd, "sourcedata", "raw", "psychopy", sep ="/", collapse = NULL) # input data directory
+input_path <- paste(proje_wd, "sourcedata", "checked", "psychopy", sep ="/", collapse = NULL) # input data directory
 output_path <- paste(proje_wd, "derivatives", "psychopy", "csv_output", sep ="/", collapse = NULL) # Directory that each new csv file will be stored
 flanker_csv_fileName <- "_mfe_c_face_flankerDat_v1.csv" # each output csv file will have this on its filename
 surprise_csv_fileName <- "_mfe_c_face_surpriseDat_v1.csv" # each output csv file will have this on its filename
