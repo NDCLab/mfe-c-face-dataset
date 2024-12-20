@@ -373,7 +373,7 @@ redcapDat$postTask_d_s1_r1_e1 <- rowSums(redcapDat[ , c("posttaskd_i1_s1_r1_e1",
 # Keeping the columns that we need!
 redcapDat <- redcapDat[c("record_id", "demo_c_yob_s1_r1_e1", "scaared_b_scrdSoc_s1_r1_e1", "scaared_b_scrdGA_s1_r1_e1", "scaared_b_scrdTotal_s1_r1_e1",
                          "bfne_b_scrdTotal_s1_r1_e1", "epepq15_scrdTotal_s1_r1_e1", "phq8_scrdTotal_s1_r1_e1",
-                         "stai5_scrdS_s1_r1_e1", "stai5_scrdS_s1_r1_e2", "stai5_scrdS_diff", "postTask_d_s1_r1_e1")]
+                         "stai5_scrdS_s1_r1_e1", "stai5_scrdS_s1_r1_e2", "stai5_scrdS_diff", "postTask_d_s1_r1_e1", "demo_c_gender_s1_r1_e1")]
 
 
 # adding new columns to the "main_df" dataframe from redcapDat
@@ -391,6 +391,7 @@ for (rr in 1:nrow(main_df)){
     main_df$stai5_scrdS_diff[rr] <- tempDat$stai5_scrdS_diff
     main_df$postTask_d_s1_r1_e1[rr] <- tempDat$postTask_d_s1_r1_e1
     main_df$scaared_b_scrdGA_s1_r1_e1[rr] <- tempDat$scaared_b_scrdGA_s1_r1_e1
+    main_df$demo_c_gender_s1_r1_e1[rr] <- tempDat$demo_c_gender_s1_r1_e1
   } else if (nrow(tempDat) == 0){
     main_df$scaared_b_scrdSoc_s1_r1_e1[rr] <- NA
     main_df$scaared_b_scrdTotal_s1_r1_e1[rr] <- NA
@@ -402,6 +403,7 @@ for (rr in 1:nrow(main_df)){
     main_df$stai5_scrdS_diff[rr] <- NA
     main_df$postTask_d_s1_r1_e1[rr] <- NA
     main_df$scaared_b_scrdGA_s1_r1_e1[rr] <- NA
+    main_df$demo_c_gender_s1_r1_e1[rr] <- NA
   }
 }
 

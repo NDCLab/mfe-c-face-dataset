@@ -17,7 +17,7 @@ library(effsize)
 
 # Loading mfe_c_face data
 
-proje_wd <- "/Users/kihossei/Google Drive/My Drive/My Digital Life/Professional/GitHub_Repos/mfe-c-face-dataset"
+proje_wd <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-face-dataset"
 setwd(proje_wd)
 
 processed_file_input <- paste(proje_wd, "derivatives", "psychopy", "stat_output", sep ="/", collapse = NULL) # input data directory
@@ -51,7 +51,7 @@ face_df$group <- 'face' # adding a column that specifies the group (will be need
 
 #Working directory should be the Psychopy experiment directory.
 
-proje_wd <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/GitHub_Repos/mfe-c-object-dataset"
+proje_wd <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-object-dataset"
 setwd(proje_wd)
 
 processed_file_input <- paste(proje_wd, "derivatives", "psychopy", "stat_output", sep ="/", collapse = NULL) # input data directory
@@ -185,3 +185,133 @@ plot_model(current_pep_HR_reg, type = "eff", terms = c("epepq15_scrdTotal_s1_r1_
 current_pep_HR_reg <- lm(hitRate_error_minus_correct ~ epepq15_scrdTotal_s1_r1_e1*scaared_b_scrdGA_s1_r1_e1 , data = main_df)
 summary(current_pep_HR_reg)
 # plot
+
+
+
+############################################ COMPUTE AGE FOR ALL PARTICIPANTS ##########################################
+
+##### to compute age based on the month and year of birth.
+### Loading RedCap questionnaire data for mfe-c-face
+redcapDat_face <- read.csv(file = "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-face-dataset/derivatives/redcap/Memoryforerrorcface_SCRD_2024-06-13_1453.csv")
+### Loading RedCap questionnaire data for mfe-c-object
+redcapDat_object <- read.csv(file = "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-object-dataset/derivatives/redcap/202402v0memoryforerr_SCRD_2024-09-10_1142.csv")
+
+# Keep only the data collection date column
+redcapDat_face_dataCollection_date <- redcapDat_face %>% dplyr::select(all_of(c("record_id", "demo_c_s1_r1_e1_timestamp")))
+redcapDat_object_dataCollection_date <- redcapDat_object %>% dplyr::select(all_of(c("record_id", "demo_c_s1_r1_e1_timestamp")))
+
+### Loading RedCap questionnaire data for mfe-c-face (this dataframe has only months and years of births)
+redcapDat_face_mob_yob <- read.csv(file = "/Users/kihossei/Desktop/mfe-c-face_mob-yob_2024-12-13.csv")
+
+# adding the date of data collection to this dataframe
+redcapDat_face_mob_yob <- redcapDat_face_mob_yob %>%
+  left_join(redcapDat_face_dataCollection_date, by = "record_id")
+
+### Loading RedCap questionnaire data for mfe-c-object
+redcapDat_object_mob_yob <- read.csv(file = "/Users/kihossei/Desktop/mfe-c-object_mob-yob_2024-12-13.csv")
+
+# adding the date of data collection to this dataframe
+redcapDat_object_mob_yob <- redcapDat_object_mob_yob %>%
+  left_join(redcapDat_object_dataCollection_date, by = "record_id")
+
+redcapDat <- rbind(redcapDat_face_mob_yob, redcapDat_object_mob_yob)
+
+# remove participants that did not participate although started the redcap
+redcapDat_filtered <- redcapDat[redcapDat$record_id != "260009", ]
+redcapDat_filtered <- redcapDat_filtered[redcapDat_filtered$record_id != "260073", ] # fully collected data but not included data analysis as this person was beyond the 70 participants we aimed initially
+redcapDat <- redcapDat_filtered
+
+
+# Convert birth od date months and years (mob and yob) columns to a single Date object
+library(lubridate)
+redcapDat <- redcapDat %>%
+  mutate(
+    dob = make_date(demo_c_yob_s1_r1_e1, demo_c_mob_s1_r1_e1, 1) # Assume 1st of the month for DOB
+  )
+# Convert the datetime column to a POSIXct object
+redcapDat$dataCollection_datetime <- ymd_hms(redcapDat$demo_c_s1_r1_e1_timestamp)
+
+# Function to calculate age from birth year to data colllection date
+redcapDat$age <- as.period(interval(start=redcapDat$dob, end=redcapDat$demo_c_s1_r1_e1_timestamp), unit = "years")
+
+# Function to convert age string to decimal years
+convert_age_to_decimal <- function(age_str) {
+  # Extract years and months using regular expressions
+  years <- as.numeric(gsub("y.*", "", age_str))
+  months <- as.numeric(gsub(".* ([0-9]+)m.*", "\\1", age_str))
+
+  # Calculate decimal years
+  decimal_years <- years + (months / 12)
+
+  return(decimal_years)
+}
+# Compute age in decimal
+for(i in 1:nrow(redcapDat)){
+  redcapDat$decimal_age[i] <- convert_age_to_decimal(redcapDat$age[i])
+}
+
+round(mean(redcapDat$decimal_age),2)
+round(sd(redcapDat$decimal_age), 2)
+############################################ END OF COMPUTING AGE FOR ALL PARTICIPANTS #################################
+
+############################################ COMPUTE cronbach.alpha for SCAARED ########################################
+# Compute cronbach.alpha for SCAARED
+# Define file paths for your CSV files
+redcap_mfe_c_face_scaaredSoc <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-face-dataset/derivatives/redcap/Memoryforerrorcface_SCRD_2024-06-13_1453.csv"
+redcap_mfe_c_object_scaaredSoc <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-object-dataset/derivatives/redcap/202402v0memoryforerr_SCRD_2024-09-10_1142.csv"
+
+# Define the columns to keep
+selected_columns <- c("record_id",
+                      "scaared_b_i3_s1_r1_e1",
+                      "scaared_b_i10_s1_r1_e1",
+                      "scaared_b_i27_s1_r1_e1",
+                      "scaared_b_i34_s1_r1_e1",
+                      "scaared_b_i41_s1_r1_e1",
+                      "scaared_b_i42_s1_r1_e1",
+                      "scaared_b_i43_s1_r1_e1")
+
+# Function to load and select columns from a CSV file
+load_and_select <- function(file_path, columns) {
+  tryCatch({
+    df <- read_csv(file_path)
+
+    # Check if all specified columns exist in the dataframe
+    if (!all(columns %in% names(df))) {
+      missing_cols <- setdiff(columns, names(df))
+      stop(paste("The following columns are missing in file:", file_path, paste(missing_cols, collapse = ", ")))
+    }
+
+    df_selected <- df %>% dplyr::select(all_of(columns))
+    return(df_selected)
+  }, error = function(e) {
+    message(paste("Error processing file:", file_path))
+    message(e)
+    return(NULL) # Return NULL in case of an error
+  })
+}
+
+# Load and select columns from both files
+df1_selected <- load_and_select(redcap_mfe_c_face_scaaredSoc, selected_columns)
+df2_selected <- load_and_select(redcap_mfe_c_object_scaaredSoc, selected_columns)
+
+# Check if both dataframes were loaded successfully before binding
+if (!is.null(df1_selected) && !is.null(df2_selected)) {
+  # Bind the dataframes using bind_rows (from dplyr)
+  combined_df <- bind_rows(df1_selected, df2_selected)
+} else {
+  message("One or both files could not be loaded. Please check the file paths and column names.")
+}
+
+combined_df <- filter(combined_df, record_id != 260009 & record_id != 260060 ) # these two participants had not completed the experiment. So, they had empty surveys.
+
+new_combined_df <- combined_df[, -1]
+
+install.packages("ltm")
+library(ltm) # for cronbach.alpha
+cronbach.alpha(combined_df, standardized = TRUE, na.rm = TRUE)
+
+cronbach.alpha(new_combined_df, standardized = TRUE, na.rm = TRUE)
+cronbach.alpha(new_combined_df, standardized = FALSE, na.rm = TRUE) #computes raw alpha value (raw is the value that we report in the paper.
+
+############################################ END of COMPUTING cronbach.alpha for SCAARED ###############################
+

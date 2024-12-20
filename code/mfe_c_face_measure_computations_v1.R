@@ -9,7 +9,7 @@ library(stringr)
 library(psycho) # to compute d' measures, etc.
 
 #Working directory should be the Psychopy experiment directory.
-proje_wd <- "/Users/kihossei/Documents/GitHub/mfe_c_face"
+proje_wd <- "/Users/kihossei/Library/CloudStorage/GoogleDrive-hosseinikianoosh@gmail.com/My Drive/My Digital Life/Professional/Github_Repos/mfe-c-face-dataset"
 setwd(proje_wd)
 
 input_raw_path <- paste(proje_wd, "sourcedata", "raw", "psychopy", sep ="/", collapse = NULL) # input data directory
@@ -345,5 +345,4 @@ for (rr in 1:nrow(main_df)){
 #write the extracted and computed summary scores to disk
 write.csv(main_df, paste(output_path, proc_fileName, sep = "/", collapse = NULL), row.names=FALSE)
 ##################
-
 
