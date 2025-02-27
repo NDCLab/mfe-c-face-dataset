@@ -20,7 +20,7 @@ library(effsize)
 proje_wd <- "/Users/kihossei/Google Drive/My Drive/My Digital Life/Professional/GitHub_Repos/mfe-c-face-dataset"
 setwd(proje_wd)
 
-processed_file_input <- paste(proje_wd, "derivatives", "psychopy", "stat_output", sep ="/", collapse = NULL) # input data directory
+processed_file_input <- paste(proje_wd, "derivatives", "psychopy", "temp_stat", sep ="/", collapse = NULL) # input data directory
 
 main_df <-  read.csv(file = paste(processed_file_input, "processed_data_mfe_c_face_Proj_v1.csv", sep ="/", collapse = NULL), stringsAsFactors = FALSE, na.strings=c("", "NA"))
 
@@ -69,33 +69,30 @@ mean(main_df$incongAcc, na.rm = TRUE)
 sd(main_df$incongAcc, na.rm = TRUE)
 
 shapiro.test(main_df$incongAcc)
-
-round(median(main_df$incongAcc, na.rm = TRUE)*100,2)
-round(IQR(main_df$incongAcc, na.rm = TRUE)*100,2)
-round(median(main_df$congAcc, na.rm = TRUE)*100,2)
-round(IQR(main_df$congAcc, na.rm = TRUE)*100,2)
+median(main_df$incongAcc, na.rm = TRUE)
+IQR(main_df$incongAcc, na.rm = TRUE)
+median(main_df$congAcc, na.rm = TRUE)
+IQR(main_df$congAcc, na.rm = TRUE)
 
 # as they are not normal, we perform non-parametric Wilcoxon test instead of t-test
-wil_acc <- wilcox.test(main_df$congAcc, main_df$incongAcc, paired = TRUE, na.action = na.omit)
-Z_acc <- qnorm(wil_acc$p.value/2) # z-score (we do divide by 2 because it is two-sided test).
-r_acc <- abs(Z_acc)/sqrt(55) # r (effect size) However, I reported Cohen's d in the paper. # formulas are from https://stats.stackexchange.com/questions/330129/how-to-get-the-z-score-in-wilcox-test-in-r#:~:text=How%20can%20i%20get%20the,for%20wilcox%20test%20in%20R%3F&text=The%20R%20code%20never%20stores,to%20the%20equivalent%20z%2Dscore.
-cohen.d(main_df$congAcc, main_df$incongAcc, paired=TRUE, na.rm = TRUE)
+wil_acc <- wilcox.test(main_df$congAcc, main_df$incongAcc, alternative = 'greater', paired = TRUE, na.action = na.omit)
+Z_acc <- qnorm(wil_acc$p.value/2) # z-score
+r_acc <- abs(Z_acc)/sqrt(32) # r (effect size) However, I reported Cohen's d in the paper. # formulas are from https://stats.stackexchange.com/questions/330129/how-to-get-the-z-score-in-wilcox-test-in-r#:~:text=How%20can%20i%20get%20the,for%20wilcox%20test%20in%20R%3F&text=The%20R%20code%20never%20stores,to%20the%20equivalent%20z%2Dscore.
+cohen.d(main_df$congAcc, main_df$incongAcc, paired=TRUE)
 
 
 # RT (unit in seconds)
 mean(main_df$congCorr_meanRT, na.rm = TRUE)
 sd(main_df$congCorr_meanRT, na.rm = TRUE)
-
 shapiro.test(main_df$congCorr_meanRT)
-round(median(main_df$congCorr_meanRT, na.rm = TRUE)*1000,2)
-round(IQR(main_df$congCorr_meanRT, na.rm = TRUE)*1000,2)
+median(main_df$congCorr_meanRT, na.rm = TRUE)
+IQR(main_df$congCorr_meanRT, na.rm = TRUE)
 
 mean(main_df$incongCorr_meanRT, na.rm = TRUE)
 sd(main_df$incongCorr_meanRT, na.rm = TRUE)
-
 shapiro.test(main_df$incongCorr_meanRT)
-round(median(main_df$incongCorr_meanRT, na.rm = TRUE)*1000,2)
-round(IQR(main_df$incongCorr_meanRT, na.rm = TRUE)*1000,2)
+median(main_df$incongCorr_meanRT, na.rm = TRUE)
+IQR(main_df$incongCorr_meanRT, na.rm = TRUE)
 
 mean(main_df$congErr_meanRT, na.rm = TRUE)
 sd(main_df$congErr_meanRT, na.rm = TRUE)
@@ -107,15 +104,15 @@ sd(main_df$incongErr_meanRT, na.rm = TRUE)
 shapiro.test(main_df$incongErr_meanRT)
 
 
-wil_RT <- wilcox.test(main_df$congCorr_meanRT, main_df$incongCorr_meanRT, paired = TRUE, na.action = na.omit)
+wil_RT <- wilcox.test(main_df$congCorr_meanRT, main_df$incongCorr_meanRT, alternative = 'less', paired = TRUE, na.action = na.omit)
 Z_RT <- qnorm(wil_RT$p.value/2)
-r_RT <- abs(Z_RT)/sqrt(55)
-cohen.d(main_df$incongCorr_meanRT, main_df$congCorr_meanRT,paired=TRUE, na.rm = TRUE)
-
+r_RT <- abs(Z_RT)/sqrt(32)
+cohen.d(main_df$congCorr_meanRT, main_df$incongCorr_meanRT,paired=TRUE)
+report(wilcox.test(main_df$congCorr_meanRT, main_df$incongCorr_meanRT, alternative = 'less', paired = TRUE, na.action = na.omit))
 ##################################################
 # Surprise memory task in mfe_c_face task
-round(mean(main_df$overall_hitRate, na.rm = TRUE)*100,2)
-round(sd(main_df$overall_hitRate, na.rm = TRUE)*100,2)
+mean(main_df$overall_hitRate, na.rm = TRUE)
+sd(main_df$overall_hitRate, na.rm = TRUE)
 
 mean(main_df$error_hitRate, na.rm = TRUE)
 sd(main_df$error_hitRate, na.rm = TRUE)
@@ -134,8 +131,13 @@ sd(main_df$post_correct_hitRate, na.rm = TRUE) #
 shapiro.test(main_df$post_correct_hitRate) #
 
 
+t.test(main_df$correct_hitRate, main_df$error_hitRate, alternative = 'less', paired = TRUE, na.action = na.omit) #
 t.test(main_df$correct_hitRate, main_df$error_hitRate, paired = TRUE, na.action = na.omit) #
-cohen.d(main_df$correct_hitRate, main_df$error_hitRate, paired=TRUE, na.rm = TRUE)
+
+t.test(main_df$post_correct_hitRate, main_df$post_error_hitRate, paired = TRUE, na.action = na.omit)
+
+report(t.test(main_df$correct_hitRate, main_df$error_hitRate, alternative = 'less', paired = TRUE, na.action = na.omit))
+cohen.d(main_df$correct_hitRate, main_df$error_hitRate, paired=TRUE)
 
 cor.test(main_df$scaared_b_scrdSoc_s1_r1_e1, main_df$overall_hitRate, method = 'pearson', na.action = na.omit)
 cor.test(main_df$scaared_b_scrdSoc_s1_r1_e1, main_df$flankEff_meanACC, method = 'pearson', na.action = na.omit)
